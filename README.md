@@ -1,6 +1,6 @@
 # ICCV 2023 Towards Instance-adaptive Inference for Federated Learning
 
-This repo is the official implementation of "FedIns".
+This repo is the official implementation of [FedIns](https://arxiv.org/abs/2308.06051).
 
 ## Abstract
 
