@@ -44,7 +44,7 @@ pip install ipdb==0.13.9
 ### Datasets
 
 1. Cifar100 
-2. DomainNet from [FedBN](https://mycuhk-my.sharepoint.com/:u:/g/personal/1155149226_link_cuhk_edu_hk/EYScRu8pHphJvHAyy0ANcy8B9k1ukyzeqzWMy1o1_NaJ0A?e=CzoFbc)
+2. DomainNet from [FedBN](https://github.com/med-air/FedBN)
 3. TinyImagenet
 
 
