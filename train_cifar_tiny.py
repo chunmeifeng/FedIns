@@ -13,7 +13,7 @@ from timm.models import create_model
 
 
 from utils import public_utils
-from FedIns_1nstance.models import vision_transformer
+from FedIns.models import vision_transformer
 from utils import cifar_tinyimage_data_utils
 
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
