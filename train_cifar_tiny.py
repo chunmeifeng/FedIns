@@ -1,4 +1,6 @@
 import os
+import sys  # added
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))  # added
 import copy
 import fire
 import random
@@ -11,7 +13,7 @@ from timm.models import create_model
 
 
 from utils import public_utils
-from FedIns.models import vision_transformer
+from FedIns_1nstance.models import vision_transformer
 from utils import cifar_tinyimage_data_utils
 
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
@@ -83,8 +85,8 @@ def main(
                 train_loss, train_acc = public_utils.pool_train(queryModel, model, train_loaders[client_idx], optimizers[client_idx], loss_fun, device, top_k, training_loss_weight)
         # aggregate
         public_utils.communication(server_model, client_models, client_weights, client_num)
-        # test
-        _, test_acc = public_utils.pool_test(queryModel, server_model, test_loaders[client_idx], loss_fun, device, top_k, training_loss_weight)
+        # test (using global test loader)
+        _, test_acc = public_utils.pool_test(queryModel, server_model, test_loader_global, loss_fun, device, top_k, training_loss_weight)
 
         if best_acc < test_acc:
             best_acc = test_acc
