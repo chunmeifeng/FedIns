@@ -35,23 +35,21 @@ def pool_train(queryModel, model, data_loader, optimizer, loss_fun, device, topk
     total = 0
     correct = 0
     for data, target in data_loader:
-        optimizer.zero_grad()
-
-        data = data.to(device)
-        target = target.to(device)
-        query = (queryModel.forward_features(data))[:, 0]
-        output, reduced_sim = model(data, query, topk)
-        loss = (1-training_loss_weight) * loss_fun(output, target) + training_loss_weight * (1-reduced_sim)
-
-        loss_all += loss.item()
-        total += target.size(0)
-        pred = output.data.max(1)[1]
-        correct += pred.eq(target.view(-1)).sum().item()
-
-        loss.backward()
-        optimizer.step()
-
-    return loss_all / len(data_loader), correct/total
+        # iterate over each instance in the batch
+        for i in range(data.size(0)):
+            optimizer.zero_grad()
+            x = data[i:i+1].to(device)
+            t = target[i:i+1].to(device)
+            query = (queryModel.forward_features(x))[:, 0]
+            output, reduced_sim = model(x, query, topk)
+            loss = (1-training_loss_weight)*loss_fun(output, t) + training_loss_weight*(1-reduced_sim)
+            loss.backward()
+            optimizer.step()
+            loss_all += loss.item()
+            total += t.size(0)
+            pred = output.data.max(1)[1]
+            correct += pred.eq(t.view(-1)).sum().item()
+    return loss_all/total, correct/total
 
 
 
@@ -60,17 +58,17 @@ def pool_test(queryModel, model, data_loader, loss_fun, device, topk, training_l
     loss_all = 0
     total = 0
     correct = 0
-    for data, target in data_loader:
-
-        data = data.to(device)
-        target = target.to(device)
-        query = (queryModel.forward_features(data))[:, 0]
-        output, reduced_sim = model(data, query, topk)
-        loss = (1-training_loss_weight) * loss_fun(output, target) + training_loss_weight * (1-reduced_sim)
-
-        loss_all += loss.item()
-        total += target.size(0)
-        pred = output.data.max(1)[1]
-        correct += pred.eq(target.view(-1)).sum().item()
-
-    return loss_all / len(data_loader), correct/total
+    with torch.no_grad():
+        for data, target in data_loader:
+            # instance-level evaluation
+            for i in range(data.size(0)):
+                x = data[i:i+1].to(device)
+                t = target[i:i+1].to(device)
+                query = (queryModel.forward_features(x))[:, 0]
+                output, reduced_sim = model(x, query, topk)
+                loss = (1-training_loss_weight)*loss_fun(output, t) + training_loss_weight*(1-reduced_sim)
+                loss_all += loss.item()
+                total += t.size(0)
+                pred = output.data.max(1)[1]
+                correct += pred.eq(t.view(-1)).sum().item()
+    return loss_all/total, correct/total
